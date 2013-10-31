@@ -1,0 +1,15 @@
+a{
+  text-decoration: none;
+  color: darkgrey;
+  font-weight: bold;
+}
+a:hover{
+  transition: .5s color;
+  color: black;
+}
+#taglist{
+  padding: 0;
+}
+#taglist li{
+  display: inline;
+}
