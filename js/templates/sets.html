@@ -1,0 +1,12 @@
+<ul id="setlist">
+  {{#sets}}
+  <li>
+    {{title}}
+    {{^latlon}} somewhere {{/latlon}}
+    {{#latlon}} <span on-click="locate" data-setid="{{id}}">{{.}}</span> {{/latlon}}
+    <a href="http://www.flickr.com/photos/61601734@N00/sets/{{id}}/">
+      (see)
+    </a>
+  </li>
+  {{/sets}}
+</ul>

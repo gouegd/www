@@ -13,3 +13,7 @@ a:hover{
 #taglist li{
   display: inline;
 }
+#map {
+  height: 250px;
+  width: 300px;
+}
