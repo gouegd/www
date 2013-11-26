@@ -21,10 +21,17 @@ define(['reqwest'], function(reqwest) {
       });
     },
 
-    getSets: function(){
+    getCollections: function(){
       return reqwestFlickrJson({
         method: 'flickr.collections.getTree',
         collection_id: '6556115-72157635171144622'
+      });
+    },
+
+    getSets: function(){
+      return reqwestFlickrJson({
+        method: 'flickr.photosets.getList',
+        primary_photo_extras: 'url_m'
       });
     }
   }

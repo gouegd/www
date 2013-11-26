@@ -1,7 +1,9 @@
-require(['domReady!', 'lodash', 'api', 'ractive', 'leaflet', 'text!templates/sets.html'],
-    function (doc, _, api, R, L, t_sets) {
+require(['domReady!', 'lodash', 'rsvp', 'api', 'ractive', 'leaflet', 'text!templates/sets.html'],
+    function (doc, _, rsvp, api, R, L, t_sets) {
   
-  var RE_LL = /^LL:(-?[\d\.]+),(-?[\d\.]+)/;
+  var RE_LL = /^LL:(-?[\d\.]+),\s?(-?[\d\.]+)/;
+  var NZ_LATLON = [-41.29225, -185.22537];
+  var NZ_SETNAME = 'New Zealand';
 
   var sets = new R({
     el: 'sets',
@@ -9,24 +11,34 @@ require(['domReady!', 'lodash', 'api', 'ractive', 'leaflet', 'text!templates/set
   });
 
   var map = L.map('map');
+  map.setView(NZ_LATLON, 4);
   L.tileLayer('http://{s}.tile.cloudmade.com/{key}/{styleId}/256/{z}/{x}/{y}.png', {
     attribution: '<a href="http://openstreetmap.org">OpenStreetMap</a> | <a href="http://cloudmade.com">CloudMade</a>',
     maxZoom: 16,
     key: 'de8efc7432d34bb6ae69673b27cf52f3',
     styleId: '114653'
   }).addTo(map);
+  var marker;
 
-  var moveMap = function moveMap (latlon) {
-    map.setView(latlon, 6, {animate: true});
-    var circle = L.circleMarker(latlon, {
-      color: 'red'
-    }).addTo(map);
+  var moveMap = function moveMap(latlon) {
+    marker = marker ?
+      marker.setLatLng(latlon) :
+      L.circleMarker(latlon, {
+        color: 'red',
+        radius: 8,
+        weight: 1,
+        fill: false,
+        opacity: 1
+      }).addTo(map);
   };
 
-  api.getSets().then(function (resp) {
+  rsvp.hash({
+    cols: api.getCollections(),
+    sets: api.getSets()
+  }).then(function onData(resp) {
     console.dir(resp);
-    var kiwiCollection = _.find(resp.collections.collection, function(collection){
-      return collection.title === 'New Zealand';
+    var kiwiCollection = _.find(resp.cols.collections.collection, function(collection){
+      return collection.title === NZ_SETNAME;
     });
 
     var kiwiSets = kiwiCollection.set;
@@ -44,13 +56,14 @@ require(['domReady!', 'lodash', 'api', 'ractive', 'leaflet', 'text!templates/set
       }
 
       var latlon = set.latlon = [lat, lon];
+      set.hasGPS = true;
 
       console.log(latlon);
     });
 
     sets.set({sets: kiwiSets});
 
-    sets.on('locate', function (event) {
+    sets.on('locate', function onLocate(event) {
       // `this` is the ractive
       // `event` contains information about the proxy event
       var id = event.node.getAttribute('data-setid');

@@ -2,10 +2,9 @@
   {{#sets}}
   <li>
     {{title}}
-    {{^latlon}} somewhere {{/latlon}}
-    {{#latlon}} <span on-click="locate" data-setid="{{id}}">{{.}}</span> {{/latlon}}
+    {{#hasGPS}} <span on-mouseenter="locate" on-click="locate" data-setid="{{id}}">(map)</span> {{/hasGPS}}
     <a href="http://www.flickr.com/photos/61601734@N00/sets/{{id}}/">
-      (see)
+      (flickr)
     </a>
   </li>
   {{/sets}}
