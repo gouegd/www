@@ -1,6 +1,11 @@
 require(['domReady!', 'lodash', 'rsvp', 'api', 'ractive', 'leaflet', 'text!templates/sets.html'],
     function (doc, _, rsvp, api, R, L, t_sets) {
   
+  rsvp.on('error', function (event) {
+    console.error && console.error('Error in promise');
+    console.dir && console.dir(event);
+  });
+
   var RE_LL = /^LL:(-?[\d\.]+),\s?(-?[\d\.]+)/;
   var NZ_LATLON = [-41.29225, -185.22537];
   var NZ_SETNAME = 'New Zealand';
@@ -21,8 +26,12 @@ require(['domReady!', 'lodash', 'rsvp', 'api', 'ractive', 'leaflet', 'text!templ
   var marker;
 
   var moveMap = function moveMap(latlon) {
+    if (!latlon) {
+      map.removeLayer(marker);
+      return;
+    }
     marker = marker ?
-      marker.setLatLng(latlon) :
+      marker.setLatLng(latlon).addTo(map) :
       L.circleMarker(latlon, {
         color: 'red',
         radius: 8,
@@ -44,6 +53,14 @@ require(['domReady!', 'lodash', 'rsvp', 'api', 'ractive', 'leaflet', 'text!templ
     var kiwiSets = kiwiCollection.set;
 
     _.each(kiwiSets, function (set) {
+      var photoset = _.find(resp.sets.photosets.photoset, function(photoset) {
+        return photoset.id === set.id;
+      });
+
+      if (photoset) {
+        set.img = photoset.primary_photo_extras.url_s;
+      }
+
       var result = RE_LL.exec(set.description);
       if (!result) {
         return;
@@ -54,30 +71,23 @@ require(['domReady!', 'lodash', 'rsvp', 'api', 'ractive', 'leaflet', 'text!templ
       if (Number.isNaN(lat) || Number.isNaN(lon)) {
         return;
       }
-
-      var latlon = set.latlon = [lat, lon];
-      set.hasGPS = true;
-
-      console.log(latlon);
+      set.latlon = [lat, lon];
     });
 
-    sets.set({sets: kiwiSets});
+    sets.set({sets: kiwiSets, notEmpty: function(arr){return arr && arr.length;}});
 
     sets.on('locate', function onLocate(event) {
-      // `this` is the ractive
-      // `event` contains information about the proxy event
-      var id = event.node.getAttribute('data-setid');
-      var sets = this.get('sets');
-      var setToLocate = _.find(sets, function(set) {
-        return set.id === id;
-      });
-
-      if (!setToLocate || !setToLocate.latlon) {
-        return;
-      }
-
-      moveMap(setToLocate.latlon);
+      var latlon = this.get(event.keypath).latlon;
+      moveMap(latlon);
     });
+
+    sets.on('go', function onLocate(event) {
+      var latlon = this.get(event.keypath).latlon;
+      var zoom = map.getZoom();
+      map.setZoomAround(latlon, 9, {animate: true});
+    });
+
+    console.dir(sets);
 
   });
 

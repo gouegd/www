@@ -1,11 +1,14 @@
 <ul id="setlist">
   {{#sets}}
-  <li>
+  <li on-mouseenter="locate" on-click="locate">
     {{title}}
-    {{#hasGPS}} <span on-mouseenter="locate" on-click="locate" data-setid="{{id}}">(map)</span> {{/hasGPS}}
     <a href="http://www.flickr.com/photos/61601734@N00/sets/{{id}}/">
       (flickr)
     </a>
+    <span on-click="go">
+      (go)
+    </span>
+    <img src="{{img}}" alt="pic" />
   </li>
   {{/sets}}
 </ul>

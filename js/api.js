@@ -31,7 +31,7 @@ define(['reqwest'], function(reqwest) {
     getSets: function(){
       return reqwestFlickrJson({
         method: 'flickr.photosets.getList',
-        primary_photo_extras: 'url_m'
+        primary_photo_extras: 'url_s'
       });
     }
   }
