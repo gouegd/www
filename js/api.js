@@ -1,7 +1,7 @@
 define(['reqwest'], function(reqwest) {
   
-  var reqwestFlickrJson = function(params){
-    return reqwest({
+  var reqwestFlickrJson = function(cb, params){
+    var promise = reqwest({
         url: 'http://api.flickr.com/services/rest/'
       , type: 'jsonp'
       , jsonpCallbackName: 'jsonFlickrApi'
@@ -10,26 +10,31 @@ define(['reqwest'], function(reqwest) {
           user_id: '61601734@N00',
           format: 'json'
         })
-      });
+    });
+    if (cb) {
+      promise = promise.then(cb);
+    }
+
+    return promise;
   };
 
   return {
 
-    getTags: function(){
-      return reqwestFlickrJson({
+    getTags: function(cb){
+      return reqwestFlickrJson(cb, {
         method: 'flickr.tags.getListUser'
       });
     },
 
-    getCollections: function(){
-      return reqwestFlickrJson({
+    getCollections: function(cb){
+      return reqwestFlickrJson(cb, {
         method: 'flickr.collections.getTree',
         collection_id: '6556115-72157635171144622'
       });
     },
 
-    getSets: function(){
-      return reqwestFlickrJson({
+    getSets: function(cb){
+      return reqwestFlickrJson(cb, {
         method: 'flickr.photosets.getList',
         primary_photo_extras: 'url_s'
       });

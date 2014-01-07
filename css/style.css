@@ -7,11 +7,13 @@ a:hover{
   transition: .5s color;
   color: black;
 }
-#taglist{
-  padding: 0;
+body{
+  margin: 0;
 }
-#taglist li{
-  display: inline;
+#setlist{
+  padding: 0;
+  margin: 0;
+  background-color: #8ed3f5;
 }
 #map {
   position: fixed;
